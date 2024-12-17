@@ -1,0 +1,48 @@
+/* General styling for the entrance page */
+.entrance-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
+  background-color: #fdfdfd; /* Light background */
+  font-family: 'Arial', sans-serif;
+}
+
+/* Styling for the main heading */
+.entrance-title {
+  font-size: 3rem;
+  color: #9bc1c6; /* Light blue color for calm and welcoming text */
+  margin: 0 1rem 2rem 1rem;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+/* Styling for the subtitle/question */
+.entrance-subtitle {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Styling for buttons */
+.entrance-button {
+  width: 150px;
+  padding: 0.8rem 0;
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #333;
+  border: 2px solid #9bc1c6;
+  background-color: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Arial', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.entrance-button:hover {
+  background-color: #9bc1c6; /* Light blue hover effect */
+  color: white;
+  transform: scale(1.05);
+}

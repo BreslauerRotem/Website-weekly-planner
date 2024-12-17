@@ -1,0 +1,80 @@
+/* General Page Container */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
+  background-color: #fdfdfd; /* Light background */
+  font-family: 'Arial', sans-serif;
+}
+
+/* Styling for the main heading (similar to entrance-title) */
+.login-title {
+  font-size: 3rem;
+  color: #9bc1c6; /* Light blue color for calm and welcoming text */
+  margin: 0 1rem 2rem 1rem;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+/* Login Form Container */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem; /* Space between fields */
+  padding: 2rem;
+  background-color: #ffffff; /* White background */
+  border: 2px solid #e0e0e0; /* Light gray border */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  width: 350px;
+  text-align: left;
+}
+
+/* Styling for Labels (similar to entrance-subtitle) */
+.login-label {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Input Fields */
+.login-input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #9bc1c6; /* Soft blue border */
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #4a90e2; /* Focus border */
+  background-color: #f0f8ff; /* Slight color change */
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5); /* Glow effect */
+}
+
+/* Submit Button (similar to entrance-button) */
+.login-button {
+  width: 150px;
+  padding: 0.8rem 0;
+  margin: 1rem auto 0 auto;
+  font-size: 1rem;
+  color: #333;
+  border: 2px solid #9bc1c6;
+  background-color: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #9bc1c6; /* Light blue hover effect */
+  color: white;
+  transform: scale(1.05);
+}
