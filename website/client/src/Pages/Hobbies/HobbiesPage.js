@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import for navigation
 import './HobbiesPage.css';
-
 
 function HobbiesPage() {
   const [selectedHobbies, setSelectedHobbies] = useState([]);
+  const navigate = useNavigate(); // React Router hook for navigation
 
   const hobbies = [
     { id: 1, name: 'Yoga', icon: '🧘' },
@@ -24,6 +25,11 @@ function HobbiesPage() {
     }
   };
 
+  // Handle navigation when the button is clicked
+  const handleScheduleClick = () => {
+    navigate('/freetime');
+  };
+
   return (
     <div className="hobbies-page">
       <h1 className="hobbies-title">My Hobbies</h1>
@@ -39,7 +45,9 @@ function HobbiesPage() {
           </button>
         ))}
       </div>
-      <button className="schedule-button">When can I do it?</button>
+      <button className="freetime-button" onClick={handleScheduleClick}>
+        When can I do it?
+      </button>
     </div>
   );
 }
