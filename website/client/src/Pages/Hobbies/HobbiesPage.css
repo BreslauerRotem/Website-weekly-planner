@@ -1,0 +1,86 @@
+.hobbies-page {
+  text-align: center;
+  padding: 20px;
+  background-color: #f0f8ff; /* Very light blue */
+  min-height: 100vh;
+}
+
+.hobbies-title {
+  font-size: 3rem;
+  color: #9bc1c6;
+  margin-bottom: 30px;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+}
+
+.hobbies-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.hobby-button {
+  background-color: #d1f2f6;
+  border: 2px solid #9bc1c6;
+  border-radius: 50%;
+  padding: 15px;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.hobby-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hobby-button.selected {
+  background-color: #4a90e2;
+  color: white;
+  border-color: #9bc1c6;
+  transform: scale(1.05);
+}
+
+.hobby-icon {
+  font-size: 2.5rem;
+  margin-bottom: 5px;
+}
+
+.hobby-name {
+  font-size: 1rem; /* Reduced to fit within the circle */
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  color: #333;
+  text-align: center; /* Ensures proper alignment */
+  word-wrap: break-word;
+}
+
+.freetime-button {
+  background-color: #9bc1c6;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 1.5rem;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.freetime-button:hover {
+  background-color: #9bc1c6;
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.freetime-button:active {
+  transform: translateY(2px);
+}
