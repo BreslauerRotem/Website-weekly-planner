@@ -10,17 +10,39 @@ function LogInPage() {
   const navigate = useNavigate(); // React Router hook for navigation
 
   // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent page reload
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    // Simulated authentication logic
-    if (username === 'admin' && password === 'password') { // Replace with real authentication logic
-      console.log('User logged in successfully');
-      setErrorMessage(''); // Clear error message
-      navigate('/hobbies'); // Navigate to Hobbies page
-    } else {
-      console.error('Login failed');
-      setErrorMessage('Invalid username or password');
+    // Validation: Ensure fields are not empty
+    if (!username || !password) {
+      setErrorMessage('Both username and password are required!');
+      return;
+    }
+
+    try {
+      // Make a POST request to the login endpoint
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Successful login
+        console.log('Login successful:', data.message);
+        setErrorMessage(''); // Clear error message
+        navigate('/hobbies'); // Navigate to hobbies page or dashboard
+      } else {
+        // Handle server error messages
+        setErrorMessage(data.message || 'Invalid username or password!');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setErrorMessage('Something went wrong. Please try again later.');
     }
   };
 
@@ -31,10 +53,10 @@ function LogInPage() {
         {/* Username Input */}
         <label className="login-label">
           Username:
-          <input 
-            type="text" 
-            name="username" 
-            className="login-input" 
+          <input
+            type="text"
+            name="username"
+            className="login-input"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -43,10 +65,10 @@ function LogInPage() {
         {/* Password Input */}
         <label className="login-label">
           Password:
-          <input 
-            type="password" 
-            name="password" 
-            className="login-input" 
+          <input
+            type="password"
+            name="password"
+            className="login-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -54,7 +76,7 @@ function LogInPage() {
 
         {/* Submit Button */}
         <button type="submit" className="login-button">
-          Continue
+          Log In
         </button>
       </form>
 
