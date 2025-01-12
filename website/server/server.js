@@ -1,23 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const User = require('./models/User'); // Import the User model
+const bcrypt = require('bcrypt'); // For password hashing and comparison
+const User = require('./models/user'); // Import the User model
+const plannerRoutes = require('./routes/plannerRoutes'); // Planner routes
+// const userRoutes = require('./routes/userRoutes'); // Uncomment if you have user routes
 
-const app = express(); // initializes an Express application instance
-const PORT = process.env.PORT || 5000; // sets the port number of the server
+const app = express();
 
-// middleware
-app.use(cors()); // enables CORS for all routes in your Express application. It allows your React frontend (which might be running on a different port, like 3000) to make API requests to your Node.js backend (running on port 5000) without being blocked by the browser.
-app.use(express.json()); // enables acces JSON data sent in HTTP requests
+// Middleware
+app.use(express.json());
 
-// Starting the server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-}); // starts the server and listens for incoming requests on the specified PORT. Once the server is running, it logs a message to the console indicating that it is operational and which port it is listening on.
- 
+// MongoDB Connection
+mongoose.connect('mongodb://localhost:27017/weekly_planner', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((error) => console.error('MongoDB connection error:', error));
 
-  const bcrypt = require('bcrypt'); // For password comparison
-const User = require('./models/User'); // Import the User model
+// Routes
+app.use('/api/planners', plannerRoutes); // Planner routes
+// app.use('/api/users', userRoutes); // Uncomment if you have user routes
 
+// Login Endpoint
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -52,14 +57,23 @@ app.post('/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    // Check if username or email already exists
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username or email already taken' });
+    }
+
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create a new user
     const newUser = new User({
       username,
       email,
-      password, // IMPORTANT: Hash the password before saving in production
+      password: hashedPassword, // Store the hashed password
       hobbies: [],
       freeTime: [],
-      currentLocation: null
+      currentLocation: null,
     });
 
     await newUser.save();
@@ -70,11 +84,8 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-// MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/weekly_planner', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('Connected to MongoDB');
-  app.listen(5000, () => console.log('Server running on port 5000'));
-}).catch(err => console.error('Database connection error:', err));
+// Start the Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
