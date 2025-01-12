@@ -10,18 +10,24 @@ function FreeTime() {
     daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: [{ start: '', end: '' }] }), {})
   );
 
+  const [currentLocation, setCurrentLocation] = useState(''); // State for location as a string (address)
   const [errorMessage, setErrorMessage] = useState(''); // State for error message
 
   // Validate time format (24-hour format)
   const isValidTime = (time) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
 
-  // Handle input change
+  // Handle input change for time slots
   const handleTimeChange = (day, index, field, value) => {
     const updatedSlots = [...timeSlots[day]];
     updatedSlots[index][field] = value;
 
     setTimeSlots({ ...timeSlots, [day]: updatedSlots });
     setErrorMessage(''); // Clear error message when typing
+  };
+
+  // Handle input change for location
+  const handleLocationChange = (value) => {
+    setCurrentLocation(value);
   };
 
   // Add another time slot
@@ -48,7 +54,13 @@ function FreeTime() {
 
   // Validate and Navigate
   const handleContinue = () => {
+    if (!currentLocation.trim()) {
+      setErrorMessage('Please enter your current location.');
+      return;
+    }
     if (hasValidSlot()) {
+      console.log('Time Slots:', timeSlots);
+      console.log('Current Location:', currentLocation);
       navigate('/results'); // At least one valid slot → proceed
     } else {
       setErrorMessage('You have not entered your free time.');
@@ -83,6 +95,17 @@ function FreeTime() {
             )}
           </div>
         ))}
+      </div>
+
+      {/* Current Location Section */}
+      <div className="location-section">
+        <h3 className="location-title">Current Location</h3>
+        <input
+          type="text"
+          placeholder="Enter your address"
+          value={currentLocation}
+          onChange={(e) => handleLocationChange(e.target.value)}
+        />
       </div>
 
       {/* Error Message Display */}
