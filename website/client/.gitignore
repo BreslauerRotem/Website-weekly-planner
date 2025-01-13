@@ -4,7 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
-
+mongodb-compass-1.45.0-darwin-arm64.dmg
 # testing
 /coverage
 
