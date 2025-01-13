@@ -1,86 +1,101 @@
-.hobbies-page {
-  text-align: center;
-  padding: 20px;
-  background-color: #9bc1c6; /* Updated background color */
-  min-height: 100vh;
-}
-
-.hobbies-title {
-  font-size: 3rem;
-  color: #ffffff; /* White text for better contrast */
-  margin-bottom: 30px;
-  font-family: 'Arial', sans-serif;
-  font-weight: bold;
-}
-
-.hobbies-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 25px;
-  margin-bottom: 30px;
-}
-
-.hobby-button {
-  background-color: #d1f2f6;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  padding: 15px;
-  width: 110px;
-  height: 110px;
+/* General Page Container */
+.login-page {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.hobby-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
-}
-
-.hobby-button.selected {
-  background-color: #ffffff;
-  color: #4a90e2;
-  border-color: #4a90e2;
-  transform: scale(1.05);
-}
-
-.hobby-icon {
-  font-size: 2.5rem;
-  margin-bottom: 5px;
-}
-
-.hobby-name {
-  font-size: 1rem; /* Ensures the text fits */
-  font-family: 'Arial', sans-serif;
-  font-weight: bold;
-  color: #333;
+  align-items: center;
   text-align: center;
-  word-wrap: break-word;
+  min-height: 100vh;
+  background-color: #fdfdfd; /* Light background */
+  font-family: 'Arial', sans-serif;
 }
 
-.freetime-button {
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 12px 30px;
-  font-size: 1.5rem;
-  font-family: 'Arial', sans-serif;
-  cursor: pointer;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+/* Main Heading */
+.login-title {
+  font-size: 3rem;
+  color: #9bc1c6; /* Light blue for consistency */
+  margin: 0 1rem 2rem 1rem;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+/* Login Form Container */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem; /* Space between fields */
+  padding: 2rem;
+  background-color: #ffffff; /* Clean white background */
+  border: 2px solid #e0e0e0; /* Light gray border */
+  border-radius: 12px; /* Smooth rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  width: 350px;
+  text-align: left;
+}
+
+/* Styling for Labels */
+.login-label {
+  font-size: 1.2rem;
+  color: #333; /* Dark gray for readability */
+  font-weight: bold;
+}
+
+/* Input Fields */
+.login-input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #9bc1c6; /* Soft blue border */
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #fafafa; /* Light gray background */
   transition: all 0.3s ease;
 }
 
-.freetime-button:hover {
-  background-color: #1e90ff;
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2);
+.login-input:focus {
+  outline: none;
+  border-color: #4a90e2; /* Highlighted border on focus */
+  background-color: #f0f8ff; /* Light blue focus background */
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5); /* Subtle focus glow */
 }
 
-.freetime-button:active {
-  transform: translateY(2px);
+/* Submit Button */
+.login-button {
+  width: 150px;
+  padding: 0.8rem 0;
+  margin: 1rem auto 0 auto;
+  font-size: 1rem;
+  color: #333; /* Text color */
+  border: 2px solid #9bc1c6; /* Border matches input style */
+  background-color: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #9bc1c6; /* Light blue hover effect */
+  color: white;
+  transform: scale(1.05); /* Slight scale on hover */
+}
+
+/* Error Message */
+.error-message {
+  color: #d64545; /* Red for error visibility */
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .login-form {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .login-title {
+    font-size: 2.5rem;
+  }
 }
