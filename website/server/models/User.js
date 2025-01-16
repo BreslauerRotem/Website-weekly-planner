@@ -25,7 +25,8 @@ const userSchema = new mongoose.Schema(
 
     currentLocation: {
       type: String,
-      default: '', // Default is an empty string
+      default: '', // Default is an empty string, but can be made required
+      required: false,  // Set to `true` if you want location to be mandatory
     },
 
     planners: [

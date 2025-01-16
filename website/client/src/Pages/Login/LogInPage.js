@@ -21,12 +21,12 @@ function LogInPage() {
 
     try {
       // Make a POST request to the login endpoint
-      const response = await fetch('http://localhost:5000/login', {
+      const response = await fetch('http://localhost:5001/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password }), // Send username and password
       });
 
       const data = await response.json();
@@ -35,6 +35,11 @@ function LogInPage() {
         // Successful login
         console.log('Login successful:', data.message);
         setErrorMessage(''); // Clear error message
+
+        // Store user data in localStorage (username and hobbies)
+        localStorage.setItem('username', username);
+        localStorage.setItem('hobbies', JSON.stringify(data.user.hobbies)); // Store hobbies as a stringified array
+
         navigate('/hobbies'); // Navigate to hobbies page or dashboard
       } else {
         // Handle server error messages
@@ -59,6 +64,7 @@ function LogInPage() {
             className="login-input"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
           />
         </label>
 
@@ -71,6 +77,7 @@ function LogInPage() {
             className="login-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </label>
 
