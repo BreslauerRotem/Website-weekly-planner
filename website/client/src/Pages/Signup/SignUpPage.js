@@ -33,7 +33,7 @@ function SignUpPage() {
   };
 
   // Handle form submission
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     // Validation checks
@@ -47,12 +47,38 @@ function SignUpPage() {
       return;
     }
 
-    // Simulate successful signup
-    console.log('Submitted with Email:', email, 'Username:', username, 'Password:', password);
-    setErrorMessage(''); // Clear any previous errors
+    try {
+      // Send user data to the server
+      const response = await fetch('http://localhost:5001/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+          hobbies: ['reading', 'swimming'], // Example hobbies
+          freeTime: [
+            { day: 'Monday', start: '14:00', end: '16:00' },
+            { day: 'Wednesday', start: '10:00', end: '12:00' },
+          ],
+          currentLocation: '123 Main St, New York, NY 10001, USA', // Example location
+        }),
+      });
 
-    // Navigate to Hobbies page after successful signup
-    navigate('/hobbies');
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data.message);
+        setErrorMessage('');
+        navigate('/hobbies'); // Navigate to the next page
+      } else {
+        setErrorMessage(data.message || 'Failed to sign up');
+      }
+    } catch (error) {
+      console.error('Error during sign-up:', error);
+      setErrorMessage('Server error. Please try again later.');
+    }
   };
 
   return (
@@ -68,6 +94,7 @@ function SignUpPage() {
             className="SignUp-input"
             value={email}
             onChange={handleChange}
+            required
           />
         </label>
 
@@ -80,6 +107,7 @@ function SignUpPage() {
             className="SignUp-input"
             value={username}
             onChange={handleChange}
+            required
           />
         </label>
 
@@ -92,6 +120,7 @@ function SignUpPage() {
             className="SignUp-input"
             value={password}
             onChange={handleChange}
+            required
           />
         </label>
 
@@ -104,6 +133,7 @@ function SignUpPage() {
             className="SignUp-input"
             value={confirmPassword}
             onChange={handleChange}
+            required
           />
         </label>
 
