@@ -35,20 +35,19 @@ function SignUpPage() {
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     // Validation checks
     if (!email || !username || !password || !confirmPassword) {
       setErrorMessage('All fields are required!');
       return;
     }
-
+  
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match!');
       return;
     }
-
+  
     try {
-      // Send user data to the server
       const response = await fetch('http://localhost:5001/signup', {
         method: 'POST',
         headers: {
@@ -58,20 +57,16 @@ function SignUpPage() {
           username,
           email,
           password,
-          hobbies: ['reading', 'swimming'], // Example hobbies
-          freeTime: [
-            { day: 'Monday', start: '14:00', end: '16:00' },
-            { day: 'Wednesday', start: '10:00', end: '12:00' },
-          ],
-          currentLocation: '123 Main St, New York, NY 10001, USA', // Example location
         }),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
+        // Store username in localStorage after successful signup
+        localStorage.setItem('username', username);  // Store the username in localStorage
         console.log(data.message);
         setErrorMessage('');
-        navigate('/hobbies'); // Navigate to the next page
+        navigate('/hobbies');  // Navigate to the hobbies page after successful signup
       } else {
         setErrorMessage(data.message || 'Failed to sign up');
       }
@@ -80,7 +75,7 @@ function SignUpPage() {
       setErrorMessage('Server error. Please try again later.');
     }
   };
-
+  
   return (
     <div className="SignUp-page">
       <h1 className="SignUp-title">Sign Up</h1>
