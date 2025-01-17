@@ -35,19 +35,20 @@ function SignUpPage() {
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     // Validation checks
     if (!email || !username || !password || !confirmPassword) {
       setErrorMessage('All fields are required!');
       return;
     }
-  
+
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match!');
       return;
     }
-  
+
     try {
+      
       const response = await fetch('http://localhost:5001/signup', {
         method: 'POST',
         headers: {
@@ -57,16 +58,17 @@ function SignUpPage() {
           username,
           email,
           password,
+         
         }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
-        // Store username in localStorage after successful signup
-        localStorage.setItem('username', username);  // Store the username in localStorage
+         // Store username in localStorage after successful signup
+         localStorage.setItem('username', username);  // Store the username in localStorage
         console.log(data.message);
         setErrorMessage('');
-        navigate('/hobbies');  // Navigate to the hobbies page after successful signup
+        navigate('/hobbies');  // Navigate to the hobbies page after successful signup    
       } else {
         setErrorMessage(data.message || 'Failed to sign up');
       }
@@ -75,7 +77,7 @@ function SignUpPage() {
       setErrorMessage('Server error. Please try again later.');
     }
   };
-  
+
   return (
     <div className="SignUp-page">
       <h1 className="SignUp-title">Sign Up</h1>

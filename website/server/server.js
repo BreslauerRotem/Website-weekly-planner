@@ -136,11 +136,20 @@ app.post('/update-free-time', async (req, res) => {
   const { username, freeTime, currentLocation } = req.body;
 
   try {
-    // Update free time and currentLocation for the given username
+    if (!username || !freeTime || !currentLocation) {
+      return res.status(400).json({ message: 'Invalid input data.' });
+    }
+
+    // Save the formatted freeTime array directly
     const updatedUser = await User.findOneAndUpdate(
       { username },
-      { $set: { freeTime, currentLocation } }, // Ensure we use $set to update fields
-      { new: true }
+      {
+        $set: {
+          freeTime, // Save freeTime in the desired format
+          currentLocation,
+        },
+      },
+      { new: true } // Return the updated document
     );
 
     if (!updatedUser) {
@@ -148,7 +157,7 @@ app.post('/update-free-time', async (req, res) => {
     }
 
     res.status(200).json({
-      message: 'Free time updated successfully!',
+      message: 'Free time and location updated successfully!',
       user: updatedUser,
     });
   } catch (error) {
