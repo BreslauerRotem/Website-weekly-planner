@@ -35,28 +35,23 @@ app.post('/login', async (req, res) => {
   }
 
   try {
-    // Find user by username
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
-    // Log the user data to check
-    console.log('User found:', user);
-
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
-    // Successful login: Return user data for frontend redirection
     res.status(200).json({
       message: 'Login successful',
       user: {
         username: user.username,
-        hobbies: user.hobbies || [], // Ensure hobbies are returned even if empty
-        freeTime: user.freeTime || [], // Ensure freeTime is returned even if empty
+        hobbies: user.hobbies || [],
+        freeTime: user.freeTime || [],
+        currentLocation: user.currentLocation || '',
       },
     });
   } catch (err) {
@@ -65,27 +60,22 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
 // Signup Endpoint
 app.post('/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Validate input
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'Username, email, and password are required' });
     }
 
-    // Check if the username or email already exists
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       return res.status(400).json({ message: 'Username or email already taken' });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user object with default values for hobbies, freeTime, and location
     const newUser = new User({
       username,
       email,
@@ -95,7 +85,6 @@ app.post('/signup', async (req, res) => {
       currentLocation: null,
     });
 
-    // Save the user to the database
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully!' });
   } catch (error) {
@@ -109,10 +98,9 @@ app.post('/update-hobbies', async (req, res) => {
   const { username, hobbies } = req.body;
 
   try {
-    // Update hobbies for the given username
     const updatedUser = await User.findOneAndUpdate(
       { username },
-      { hobbies }, // Update hobbies field
+      { hobbies },
       { new: true }
     );
 
@@ -130,7 +118,6 @@ app.post('/update-hobbies', async (req, res) => {
   }
 });
 
-
 // Update Free Time Endpoint
 app.post('/update-free-time', async (req, res) => {
   const { username, freeTime, currentLocation } = req.body;
@@ -140,16 +127,15 @@ app.post('/update-free-time', async (req, res) => {
       return res.status(400).json({ message: 'Invalid input data.' });
     }
 
-    // Save the formatted freeTime array directly
     const updatedUser = await User.findOneAndUpdate(
       { username },
       {
         $set: {
-          freeTime, // Save freeTime in the desired format
+          freeTime,
           currentLocation,
         },
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (!updatedUser) {
@@ -166,22 +152,25 @@ app.post('/update-free-time', async (req, res) => {
   }
 });
 
-// Save Planner Endpoint
-app.post('/save-planner', async (req, res) => {
-  const { userId, planner } = req.body;
+// Fetch User Data Endpoint
+app.get('/get-user-data', async (req, res) => {
+  const { username } = req.query;
 
   try {
-    // Save planner data in the planners collection
-    const newPlanner = new Planner({
-      userId,
-      planner,
-    });
+    const user = await User.findOne({ username });
 
-    await newPlanner.save();
-    res.status(201).json({ message: 'Planner saved successfully!', planner: newPlanner });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      hobbies: user.hobbies || [],
+      freeTime: user.freeTime || [],
+      currentLocation: user.currentLocation || '',
+    });
   } catch (error) {
-    console.error('Error saving planner:', error);
-    res.status(500).json({ message: 'Error saving planner' });
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Error fetching user data' });
   }
 });
 

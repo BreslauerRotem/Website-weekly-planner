@@ -1,50 +1,72 @@
-import React, { useState, useEffect, useMemo  } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './FreeTimePage.css';
 
 function FreeTime() {
-  const daysOfWeek = useMemo(() => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], []);  const navigate = useNavigate();
+  const daysOfWeek = useMemo(() => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], []);
+  const navigate = useNavigate();
 
   const [timeSlots, setTimeSlots] = useState({});
   const [currentLocation, setCurrentLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    const storedTimeSlots = JSON.parse(localStorage.getItem('freeTime')) || {};
-    const storedLocation = localStorage.getItem('currentLocation') || '';
-    const defaultSlots = daysOfWeek.reduce((acc, day) => {
-      acc[day] = storedTimeSlots[day] || [{ start: '', end: '' }];
-      return acc;
-    }, {});
-    setTimeSlots(defaultSlots);
-    setCurrentLocation(storedLocation);
-  }, [daysOfWeek]); // Add daysOfWeek to the dependency array
+    const fetchUserData = async () => {
+      const username = localStorage.getItem('username');
+      if (!username) {
+        setErrorMessage('Please log in first.');
+        return;
+      }
+  
+      try {
+        const response = await fetch(`http://localhost:5001/get-user-data?username=${username}`);
+        if (response.ok) {
+          const data = await response.json();
+  
+          // Populate timeSlots and location for returning users
+          const defaultSlots = daysOfWeek.reduce((acc, day) => {
+            const daySlots = data.freeTime
+              .filter((slot) => slot.day === day)
+              .map((slot) => ({ start: slot.start, end: slot.end }));
+  
+            // If no slots exist for a day, add an empty slot
+            acc[day] = daySlots.length > 0 ? daySlots : [{ start: '', end: '' }];
+            return acc;
+          }, {});
+  
+          setTimeSlots(defaultSlots); // Populate the state with the processed data
+          setCurrentLocation(data.currentLocation || ''); // Populate the location
+        } else {
+          console.error('Failed to fetch user data.');
+          setTimeSlots(daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: [{ start: '', end: '' }] }), {}));
+          setCurrentLocation('');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setTimeSlots(daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: [{ start: '', end: '' }] }), {}));
+        setCurrentLocation('');
+      }
+    };
+  
+    fetchUserData();
+  }, [daysOfWeek]);
   
 
-// Remove this unused function
-const isValidTime = (time) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
+  const isValidTime = (time) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
 
+  const isStartBeforeEnd = (start, end) => {
+    const [startHour, startMinute] = start.split(':').map(Number);
+    const [endHour, endMinute] = end.split(':').map(Number);
+    return startHour < endHour || (startHour === endHour && startMinute < endMinute);
+  };
 
+  const handleTimeChange = (day, index, field, value) => {
+    const updatedSlots = [...timeSlots[day]];
+    updatedSlots[index][field] = value;
 
-const handleTimeChange = (day, index, field, value) => {
-  // Update the state without immediate validation
-  const updatedSlots = [...timeSlots[day]];
-  updatedSlots[index][field] = value;
-
-  setTimeSlots({ ...timeSlots, [day]: updatedSlots });
-  setErrorMessage(''); // Clear any previous error messages while typing
-};
-
-const handleBlur = (day, index, field) => {
-  // Validate the time format only when the user leaves the input field
-  const time = timeSlots[day][index][field];
-  if (!isValidTime(time)) {
-    setErrorMessage('Invalid time format. Please use HH:MM format.');
-    return;
-  }
-  setErrorMessage(''); // Clear error message if valid
-};
-
+    setTimeSlots({ ...timeSlots, [day]: updatedSlots });
+    setErrorMessage('');
+  };
 
   const handleLocationChange = (value) => {
     setCurrentLocation(value);
@@ -69,13 +91,28 @@ const handleBlur = (day, index, field) => {
       setErrorMessage('Please enter your current location.');
       return;
     }
-  
+
+    // Check if there is at least one valid time slot across all days
+    const hasValidSlot = Object.keys(timeSlots).some((day) =>
+      timeSlots[day].some(
+        (slot) =>
+          isValidTime(slot.start) &&
+          isValidTime(slot.end) &&
+          isStartBeforeEnd(slot.start, slot.end)
+      )
+    );
+
+    if (!hasValidSlot) {
+      setErrorMessage('Please provide at least one valid time slot.');
+      return;
+    }
+
     const username = localStorage.getItem('username');
     if (!username) {
       setErrorMessage('Please log in first.');
       return;
     }
-  
+
     // Transform timeSlots into the desired format
     const formattedFreeTime = [];
     Object.keys(timeSlots).forEach((day) => {
@@ -89,7 +126,7 @@ const handleBlur = (day, index, field) => {
         }
       });
     });
-  
+
     try {
       const response = await fetch('http://localhost:5001/update-free-time', {
         method: 'POST',
@@ -98,11 +135,11 @@ const handleBlur = (day, index, field) => {
         },
         body: JSON.stringify({
           username,
-          freeTime: formattedFreeTime, // Send formatted freeTime
+          freeTime: formattedFreeTime,
           currentLocation,
         }),
       });
-  
+
       if (response.ok) {
         console.log('Free time and location updated successfully!');
         localStorage.setItem('freeTime', JSON.stringify(formattedFreeTime));
@@ -118,7 +155,6 @@ const handleBlur = (day, index, field) => {
       setErrorMessage('Server error. Please try again later.');
     }
   };
-  
 
   return (
     <div className="freetime-container">
@@ -134,14 +170,12 @@ const handleBlur = (day, index, field) => {
                   placeholder="Start (HH:MM)"
                   value={slot.start}
                   onChange={(e) => handleTimeChange(day, index, 'start', e.target.value)}
-                  onBlur={() => handleBlur(day, index, 'start')}
                 />
                 <input
                   type="text"
                   placeholder="End (HH:MM)"
                   value={slot.end}
                   onChange={(e) => handleTimeChange(day, index, 'end', e.target.value)}
-                  onBlur={() => handleBlur(day, index, 'end')}
                 />
                 <button
                   className="remove-slot-button"
@@ -157,7 +191,7 @@ const handleBlur = (day, index, field) => {
           </div>
         ))}
       </div>
-  
+
       <div className="location-section">
         <h3 className="location-title">Current Location</h3>
         <input
@@ -167,9 +201,9 @@ const handleBlur = (day, index, field) => {
           onChange={(e) => handleLocationChange(e.target.value)}
         />
       </div>
-  
+
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-  
+
       <button className="save-button" onClick={handleSaveClick}>
         Save and Continue
       </button>
