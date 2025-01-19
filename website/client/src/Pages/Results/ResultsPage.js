@@ -1,103 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import './ResultsPage.css';
 
-// Mock Google Maps API fetch (replace with real API call later)
-const fetchActivities = async (timeSlot, hobbies, pageToken = null) => {
-  // Simulate API call delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        results: [
-          { id: 1, name: `Activity 1 for ${timeSlot.start}-${timeSlot.end}`, hobby: hobbies[0] },
-          { id: 2, name: `Activity 2 for ${timeSlot.start}-${timeSlot.end}`, hobby: hobbies[1] },
-        ],
-        nextPageToken: pageToken ? null : 'next-page-token', // Mock pagination
-      });
-    }, 1000);
-  });
-};
-
 function ResultsPage() {
-  const [timeSlots, setTimeSlots] = useState([
-    { day: 'Monday', start: '10:00', end: '12:00' },
-    { day: 'Tuesday', start: '', end: '' }, // Invalid slot
-    { day: 'Wednesday', start: '14:00', end: '16:00' },
-  ]); // Mocked time slots (replace with props/state later)
-
-  const [hobbies, setHobbies] = useState(['Sports', 'Art']); // Mocked hobbies (replace with props/state later)
-
-  const [activityResults, setActivityResults] = useState({});
+  // 1) Retrieve the username from localStorage
+  const [username] = useState(() => localStorage.getItem('username') || '');
+  const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // 2) Fetch recommendations on mount (if we have a username)
   useEffect(() => {
-    loadActivities();
-  }, []);
-
-  // Helper function to check if a time slot is valid
-  const isValidSlot = (slot) => slot.start && slot.end;
-
-  // Load activities for valid slots
-  const loadActivities = async () => {
-    setLoading(true);
-    const newResults = { ...activityResults };
-
-    for (const slot of timeSlots) {
-      if (isValidSlot(slot) && !newResults[slot.day]) {
-        newResults[slot.day] = [];
-        const apiResponse = await fetchActivities(slot, hobbies);
-        newResults[slot.day] = [...newResults[slot.day], ...apiResponse.results];
-      }
+    if (username) {
+      loadRecommendations();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username]);
 
-    setActivityResults(newResults);
-    setLoading(false);
-  };
-
-  // Load more activities for a specific slot
-  const loadMoreActivities = async (slot) => {
-    if (!isValidSlot(slot)) return; // Prevent load more on invalid slots
+  const loadRecommendations = async () => {
     setLoading(true);
-    const apiResponse = await fetchActivities(slot, hobbies, 'next-page-token');
-    setActivityResults((prevResults) => ({
-      ...prevResults,
-      [slot.day]: [...(prevResults[slot.day] || []), ...apiResponse.results],
-    }));
-    setLoading(false);
+    try {
+      // Make sure your server is running on localhost:5001 
+      // and the route matches your plannerRoutes
+      const response = await fetch(
+        `http://localhost:5001/api/planner/generate-recommendations?username=${username}`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommendations');
+      }
+
+      const data = await response.json();
+      setRecommendations(data);
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="results-container">
       <h1 className="results-title">Your Personalized Activity Recommendations</h1>
-      {loading && <p className="loading-message">Loading activities...</p>}
-      
-      {/* Render only valid slots */}
-      {timeSlots
-        .filter(isValidSlot)
-        .map((slot, index) => (
-          <div key={index} className="slot-container">
-            <h2 className="slot-title">
-              {slot.day}: {slot.start} - {slot.end}
-            </h2>
-            <div className="activities-list">
-              {activityResults[slot.day]?.map((activity) => (
-                <div key={activity.id} className="activity-card">
-                  <h3 className="activity-name">{activity.name}</h3>
-                  <p className="activity-hobby">Related to: {activity.hobby}</p>
-                </div>
-              )) || <p>No activities found yet.</p>}
-            </div>
-            <button
-              className="load-more-button"
-              onClick={() => loadMoreActivities(slot)}
-            >
-              Load More
-            </button>
-          </div>
-        ))}
 
-      {/* Display message if no valid slots */}
-      {timeSlots.every((slot) => !isValidSlot(slot)) && (
-        <p className="error-message">You have not entered valid time slots. Please go back and add your free time!</p>
+      {/* Loading indicator */}
+      {loading && <p className="loading-message">Loading activities...</p>}
+
+      {/* Show recommendations if available */}
+      {!loading && recommendations.length > 0 && (
+        recommendations.map((slot, idx) => (
+          <div key={idx} className="slot-container">
+            <h2 className="slot-title">{slot.timeSlot}</h2>
+            <div className="activities-list">
+              {slot.recommendations.map((place, i) => (
+                <div key={i} className="activity-card">
+                  <h3 className="activity-name">{place.name}</h3>
+                  <p className="activity-hobby">Address: {place.address}</p>
+                  <p className="activity-hobby">Rating: {place.rating}</p>
+                  <a
+                    href={place.googleMapsLink}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View on Google Maps
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+
+      {/* If no recommendations (or user not found) */}
+      {!loading && recommendations.length === 0 && (
+        <p className="error-message">
+          No recommendations found. Please add your free time and hobbies!
+        </p>
       )}
     </div>
   );

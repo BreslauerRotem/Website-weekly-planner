@@ -1,29 +1,50 @@
+/*********************************************
+ * 1) Load Environment Variables (dotenv)
+ *********************************************/
+require('dotenv').config(); // <-- This must be at the very top
+
 const express = require('express');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt'); // For password hashing and comparison
-const User = require('./models/User'); // Import the User model
-const plannerRoutes = require('./routes/plannerRoutes'); // Planner routes
-
-const app = express();
-
+const bcrypt = require('bcrypt');
 const cors = require('cors');
 
-// Enable CORS for all origins
+/*********************************************
+ * Import Models & Routes
+ *********************************************/
+const User = require('./models/User'); // Your user model
+const plannerRoutes = require('./routes/plannerRoutes'); // Your planner routes
+
+/*********************************************
+ * Initialize Express App
+ *********************************************/
+const app = express();
+
+// Enable CORS (so your React frontend can call your backend)
 app.use(cors());
 
-// Middleware
+// Parse incoming JSON
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/weekly_planner', {
+/*********************************************
+ * 2) Connect to MongoDB Using .env Variables
+ *********************************************/
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-  .then(() => console.log('Connected to MongoDB'))
+  .then(() => console.log('Connected to MongoDB:', process.env.MONGO_URI))
   .catch((error) => console.error('MongoDB connection error:', error));
 
-// Routes
-app.use('/api/planner', plannerRoutes); // Planner routes
+/*********************************************
+ * 3) Routes
+ *********************************************/
+// All routes for planner features (including generate-recommendations)
+// are in plannerRoutes.js
+app.use('/api/planner', plannerRoutes);
+
+/*********************************************
+ * 4) Authentication & User Management
+ *********************************************/
 
 // Login Endpoint
 app.post('/login', async (req, res) => {
@@ -35,16 +56,19 @@ app.post('/login', async (req, res) => {
   }
 
   try {
+    // Find user by username
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
+    // Compare password with hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
+    // If login is successful, return user data
     res.status(200).json({
       message: 'Login successful',
       user: {
@@ -55,27 +79,31 @@ app.post('/login', async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error in /login:', err);
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 });
 
 // Signup Endpoint
 app.post('/signup', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  // Validate input
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Username, email, and password are required' });
+  }
+
   try {
-    const { username, email, password } = req.body;
-
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'Username, email, and password are required' });
-    }
-
+    // Check if username or email is already taken
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       return res.status(400).json({ message: 'Username or email already taken' });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create and save new user
     const newUser = new User({
       username,
       email,
@@ -88,7 +116,7 @@ app.post('/signup', async (req, res) => {
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully!' });
   } catch (error) {
-    console.error('Error saving user:', error);
+    console.error('Error in /signup:', error);
     res.status(500).json({ message: 'Error registering user' });
   }
 });
@@ -113,7 +141,7 @@ app.post('/update-hobbies', async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error('Error updating hobbies:', error);
+    console.error('Error in /update-hobbies:', error);
     res.status(500).json({ message: 'Error updating hobbies' });
   }
 });
@@ -147,7 +175,7 @@ app.post('/update-free-time', async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error('Error updating free time:', error);
+    console.error('Error in /update-free-time:', error);
     res.status(500).json({ message: 'Error updating free time' });
   }
 });
@@ -169,12 +197,14 @@ app.get('/get-user-data', async (req, res) => {
       currentLocation: user.currentLocation || '',
     });
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error('Error in /get-user-data:', error);
     res.status(500).json({ message: 'Error fetching user data' });
   }
 });
 
-// Start the Server
+/*********************************************
+ * 5) Start the Server Using .env PORT
+ *********************************************/
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
