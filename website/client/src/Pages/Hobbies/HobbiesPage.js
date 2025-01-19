@@ -16,6 +16,13 @@ function HobbiesPage() {
     { id: 6, name: 'Ceramics', icon: '🏺' },
     { id: 7, name: 'Movie', icon: '🎥' },
     { id: 8, name: 'Tennis', icon: '🎾' },
+    { id: 9, name: 'Cycling', icon: '🚴' },
+    { id: 10, name: 'Cooking', icon: '🍳' },
+    { id: 11, name: 'Painting', icon: '🎨' },
+    { id: 12, name: 'Running', icon: '🏃' },
+    { id: 13, name: 'Chess', icon: '♟️' },
+    { id: 14, name: 'Photography', icon: '📷' },
+    { id: 15, name: 'Hiking', icon: '🥾' },
   ];
 
   useEffect(() => {
