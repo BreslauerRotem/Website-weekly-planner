@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './ResultsPage.css';
 
 function ResultsPage() {
-  // 1) Retrieve the username from localStorage
   const [username] = useState(() => localStorage.getItem('username') || '');
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 2) Fetch recommendations on mount (if we have a username)
   useEffect(() => {
     if (username) {
       loadRecommendations();
@@ -18,8 +16,7 @@ function ResultsPage() {
   const loadRecommendations = async () => {
     setLoading(true);
     try {
-      // Make sure your server is running on localhost:5001 
-      // and the route matches your plannerRoutes
+      // Make sure your server returns a slot object with { timeSlot, hobby, recommendations[] }
       const response = await fetch(
         `http://localhost:5001/api/planner/generate-recommendations?username=${username}`
       );
@@ -41,14 +38,21 @@ function ResultsPage() {
     <div className="results-container">
       <h1 className="results-title">Your Personalized Activity Recommendations</h1>
 
-      {/* Loading indicator */}
       {loading && <p className="loading-message">Loading activities...</p>}
 
-      {/* Show recommendations if available */}
       {!loading && recommendations.length > 0 && (
         recommendations.map((slot, idx) => (
           <div key={idx} className="slot-container">
-            <h2 className="slot-title">{slot.timeSlot}</h2>
+            {/* 
+              1) If the server includes a 'hobby' field, we show:
+                 "Sunday 11:00-12:00 Yoga"
+              2) If you want a different format (like a dash),
+                 do: {slot.timeSlot} - {slot.hobby}
+            */}
+            <h2 className="slot-title">
+              {slot.timeSlot}{slot.hobby ? ` ${slot.hobby}` : ''}
+            </h2>
+
             <div className="activities-list">
               {slot.recommendations.map((place, i) => (
                 <div key={i} className="activity-card">
@@ -69,7 +73,6 @@ function ResultsPage() {
         ))
       )}
 
-      {/* If no recommendations (or user not found) */}
       {!loading && recommendations.length === 0 && (
         <p className="error-message">
           No recommendations found. Please add your free time and hobbies!

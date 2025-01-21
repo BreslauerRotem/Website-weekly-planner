@@ -48,7 +48,6 @@ function SignUpPage() {
     }
 
     try {
-      
       const response = await fetch('http://localhost:5001/signup', {
         method: 'POST',
         headers: {
@@ -58,17 +57,21 @@ function SignUpPage() {
           username,
           email,
           password,
-         
         }),
       });
 
       const data = await response.json();
+
       if (response.ok) {
-         // Store username in localStorage after successful signup
-         localStorage.setItem('username', username);  // Store the username in localStorage
+        // Store username in localStorage after successful signup
+        localStorage.setItem('username', username);
+
+        // Reset hobbies for a new user:
+        localStorage.removeItem('hobbies');
+
         console.log(data.message);
         setErrorMessage('');
-        navigate('/hobbies');  // Navigate to the hobbies page after successful signup    
+        navigate('/hobbies');
       } else {
         setErrorMessage(data.message || 'Failed to sign up');
       }
@@ -76,8 +79,9 @@ function SignUpPage() {
       console.error('Error during sign-up:', error);
       setErrorMessage('Server error. Please try again later.');
     }
-  };
+  }; // <-- Important: close the handleSubmit function here
 
+  // Return the component's JSX here
   return (
     <div className="SignUp-page">
       <h1 className="SignUp-title">Sign Up</h1>
