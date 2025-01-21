@@ -7,10 +7,9 @@ function HobbiesPage() {
   const [errorMessage, setErrorMessage] = useState(''); // State for error message
   const navigate = useNavigate(); // React Router hook for navigation
 
-  const hobbies = [
+   const hobbies = [
     { id: 1, name: 'Yoga', icon: '🧘' },
     { id: 2, name: 'Basketball', icon: '🏀' },
-    { id: 3, name: 'Reading', icon: '📚' },
     { id: 4, name: 'Swimming', icon: '🏊' },
     { id: 5, name: 'Pilates', icon: '🧘‍♀️' },
     { id: 6, name: 'Ceramics', icon: '🏺' },
@@ -23,7 +22,12 @@ function HobbiesPage() {
     { id: 13, name: 'Chess', icon: '♟️' },
     { id: 14, name: 'Photography', icon: '📷' },
     { id: 15, name: 'Hiking', icon: '🥾' },
+    { id: 16, name: 'Surfing', icon: '🏄' },
+    { id: 17, name: 'Dancing', icon: '💃' },
+    { id: 18, name: 'Bowling', icon: '🎳' },
+    { id: 19, name: 'Gym', icon: '🏋️' },
   ];
+  
 
   useEffect(() => {
     // Retrieve hobbies from localStorage when the component mounts
