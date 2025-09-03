@@ -266,4 +266,4 @@ For support and questions:
 
 ---
 
-**Built with ❤️ using React, Node.js, and MongoDB**
+**Built with React, Node.js, and MongoDB**
